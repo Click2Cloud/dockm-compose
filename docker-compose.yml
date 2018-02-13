@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+  proxy:
+    build: nginx/
+    container_name: "dockm-proxy"
+    ports:
+      - "80:80"
+    networks:
+      - local
+
+  templates:
+    image: click2cloud/templates
+    container_name: "dockm-templates"
+    networks:
+      - local
+
+  dockm:
+    image: click2cloud/dockm
+    container_name: "dockm-app"
+#Automatically choose 'Manage the Docker instance where DockM is running' by adding <--host=unix:///var/run/docker.sock> to the command
+    command: --templates http://templates/templates.json
+    networks:
+      - local
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/dockm/data:/data
+
+  watchtower:
+    image: v2tec/watchtower
+    container_name: "dockm-watchtower"
+    command: --cleanup dockm-app dockm-watchtower click2cloud/templates
+    networks:
+      - local
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  local:
+    driver: bridge

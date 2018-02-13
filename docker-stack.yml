@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  dockm:
+    image: click2cloud/dockm
+    ports:
+      - "9000"
+    networks:
+      - dockm-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+networks:
+  dockm-net:
